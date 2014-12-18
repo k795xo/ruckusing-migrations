@@ -105,6 +105,7 @@ class Ruckusing_Adapter_MySQL_Base extends Ruckusing_Adapter_Base implements Ruc
                 'primary_key'   => array('name' => 'integer', 'limit' => 11, 'null' => false),
                 'string'        => array('name' => "varchar", 'limit' => 255),
                 'text'          => array('name' => "text"),
+                'longtext'          => array('name' => "longtext"),
                 'tinytext'      => array('name' => "tinytext"),
                 'mediumtext'    => array('name' => 'mediumtext'),
                 'integer'       => array('name' => "int", 'limit' => 11),
@@ -119,11 +120,12 @@ class Ruckusing_Adapter_MySQL_Base extends Ruckusing_Adapter_Base implements Ruc
                 'time'          => array('name' => "time"),
                 'date'          => array('name' => "date"),
                 'binary'        => array('name' => "blob"),
-		            'tinybinary'    => array('name' => "tinyblob"),
-		            'mediumbinary'  => array('name' => "mediumblob"),
-		            'longbinary'    => array('name' => "longblob"),
+	            'tinybinary'    => array('name' => "tinyblob"),
+	            'mediumbinary'  => array('name' => "mediumblob"),
+	            'longbinary'    => array('name' => "longblob"),
                 'boolean'       => array('name' => "tinyint", 'limit' => 1),
                 'enum'          => array('name' => "enum", 'values' => array()),
+                'set'          => array('name' => "set", 'values' => array()),
                 'uuid'          => array('name' => "char", 'limit' => 36),
                 'char'          => array('name' => "char"),
         );
@@ -767,7 +769,7 @@ class Ruckusing_Adapter_MySQL_Base extends Ruckusing_Adapter_Base implements Ruc
         }
         $sql = sprintf("CREATE %sINDEX %s ON %s(%s)",
                 $unique ? "UNIQUE " : "",
-                $index_name,
+                $this->identifier($index_name),
                 $this->identifier($table_name),
                 join(", ", $cols));
 
@@ -972,10 +974,10 @@ class Ruckusing_Adapter_MySQL_Base extends Ruckusing_Adapter_Base implements Ruc
                     );
                 }
             }//precision
-        } elseif ($type == "enum") {
+        } elseif ($type == "enum" || $type == "set") {
             if (empty($values)) {
                 throw new Ruckusing_Exception(
-                        "Error adding enum column: there must be at least one value defined",
+                        "Error adding $type column: there must be at least one value defined",
                         Ruckusing_Exception::INVALID_ARGUMENT
                 );
             } else {
